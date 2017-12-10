@@ -2,41 +2,29 @@
     Server - DeepScholar Mock.
 */
 const express = require('express')
-const flash = require('connect-flash')
-const session = require('express-session')
+const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
+const jwt = require('jsonwebtoken')
 
 // Secret Key.
 // TODO Get from environment.
-const SESSION_SECRET_KEY = 'foo'
 const JWT_SECRET_KEY = 'bar'
 
 // Create an app.
 const app = express()
 
 // Settings for app.
+app.use(cookieParser())
 app.use(bodyParser.urlencoded({ extended: true }))
-app.use(session({ 
-    secret            : SESSION_SECRET_KEY, 
-    resave            : false,
-    saveUninitialized : true
-}))
-app.use(flash())
 
-
-// Auth.
+// Auth Algorithm..
 passport.use(new LocalStrategy((username, password, done) => {
 
-    console.log('challenge: ', username, password)
-
-    // TODO mockup.
+    // Mockup.
     if (username === 'user' && password === 'pass') {
-        done(null, {
-            id   : 1,
-            name : username
-        })
+        done(null, { id : 1, name : username })
 
     } else {
         return done('failed.', false, { message : 'incorrect username / password.' })
@@ -44,16 +32,7 @@ passport.use(new LocalStrategy((username, password, done) => {
 }))
 
 
-
-
-
-
-
-
-
-
 // Index.
-
 app.get('/', (req, res) => {
     res.redirect('/login')
 })
@@ -73,7 +52,7 @@ app.get('/login', (req, res) => {
 
 // Login.
 app.post('/login', (req, res, next) => {
-    passport.authenticate('local', (err, user, info) => {
+    passport.authenticate('local', { session : false }, (err, user, info) => {
 
         console.log('passport local callback.', err, user, info)
 
@@ -82,7 +61,14 @@ app.post('/login', (req, res, next) => {
         }
 
         if (user) {
-            req.session.user = user
+            // Create a jwt token, and Set to Cookie.
+            const token = jwt.sign(user, JWT_SECRET_KEY, { expiresIn : '7days' })
+            res.cookie('token', token, {
+                // domain : 'xxx'
+                expires : new Date(Date.now() + 1000 * 60 * 60 * 24 * 7)
+            })
+
+            // OK.
             return res.redirect('/home')
         }
 
@@ -95,10 +81,20 @@ app.post('/login', (req, res, next) => {
 // Home.
 app.get('/home', (req, res) => {
 
-    const user = req.session.user
+    // Get a token from Cookie.
+    const token = req.cookies.token
+    if (!token) {
+        return res.redirect('/')
+    }
 
-    // Check login.
-    if (!user) {
+    // Verify and Decode the jwt token..
+    let user
+    try {
+        user = jwt.verify(token, JWT_SECRET_KEY)
+    } catch (err) {
+        // Error.
+        // @see https://github.com/auth0/node-jsonwebtoken#jsonwebtokenerror
+        console.log('jwt err:', err)
         return res.redirect('/')
     }
 
@@ -106,6 +102,7 @@ app.get('/home', (req, res) => {
     res.send(`Home. userId=${user.id}`)
 })
 
+// Run.
 app.listen(3000, function() {
     console.log('App listening on port 3000.');
 });
