@@ -22,3 +22,8 @@ $ node app.js
 # Or
 $ node-dev app.js
 ```
+
+## memo
+127.0.0.1  deepscholar.local
+127.0.0.1  pdfanno.deepscholar.local
+127.0.0.1  api.pdfanno.deepscholar.local

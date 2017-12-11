@@ -18,6 +18,7 @@ const app = express()
 // Settings for app.
 app.use(cookieParser())
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use(express.static('public'))
 
 // Auth Algorithm..
 passport.use(new LocalStrategy((username, password, done) => {
@@ -31,12 +32,6 @@ passport.use(new LocalStrategy((username, password, done) => {
     }
 }))
 
-
-// Index.
-app.get('/', (req, res) => {
-    res.redirect('/login')
-})
-
 // Login page.
 app.get('/login', (req, res) => {
     res.send(`
@@ -44,7 +39,7 @@ app.get('/login', (req, res) => {
             <label>Username:</label>
             <input type="text" name="username" value="user"/><br>
             <label>Password:</label>
-            <input type="password" name="password" value="pass"/><br>
+            <input type="text" name="password" value="pass"/><br>
             <input type="submit" value="Log In"/>
         </form>
     `)
@@ -64,7 +59,7 @@ app.post('/login', (req, res, next) => {
             // Create a jwt token, and Set to Cookie.
             const token = jwt.sign(user, JWT_SECRET_KEY, { expiresIn : '7days' })
             res.cookie('token', token, {
-                // domain : 'xxx'
+                domain : '.deepscholar.local',
                 expires : new Date(Date.now() + 1000 * 60 * 60 * 24 * 7)
             })
 
@@ -99,10 +94,29 @@ app.get('/home', (req, res) => {
     }
 
     // OK.
-    res.send(`Home. userId=${user.id}`)
+    res.send(`
+        <h1>Click and open the PDF in pdfanno.</h1>
+        <ul>
+            <li>
+                <a href="http://pdfanno.deepscholar.local:8080/dist/?pdf=http://deepscholar.local:4000/pdf/bitcoin.pdf">
+                    bitcoin.pdf
+                </a>
+            </li>
+            <li>
+                <a href="http://pdfanno.deepscholar.local:8080/dist/?pdf=http://deepscholar.local:4000/pdf/P12-1046.pdf">
+                    P12-1046.pdf
+                </a>
+            </li>
+        </ul>
+    `)
+})
+
+// Index.
+app.get('/', (req, res) => {
+    res.redirect('/login')
 })
 
 // Run.
-app.listen(3000, function() {
-    console.log('App listening on port 3000.');
+app.listen(4000, function() {
+    console.log('App listening on port 4000.');
 });
