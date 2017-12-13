@@ -27,3 +27,7 @@ $ node-dev app.js
 127.0.0.1  deepscholar.local
 127.0.0.1  pdfanno.deepscholar.local
 127.0.0.1  api.pdfanno.deepscholar.local
+
+```
+auth-share-sample
+```
