@@ -24,12 +24,13 @@ app.use(express.static('public'))
 passport.use(new LocalStrategy((username, password, done) => {
 
     // Mockup.
-    if (username === 'user' && password === 'pass') {
-        done(null, { id : 1, name : username })
+    done(null, { id : 1, name : username })
+    // if (username === 'user' && password === 'pass') {
+    //     done(null, { id : 1, name : username })
 
-    } else {
-        return done('failed.', false, { message : 'incorrect username / password.' })
-    }
+    // } else {
+    //     return done('failed.', false, { message : 'incorrect username / password.' })
+    // }
 }))
 
 // Login page.
@@ -98,12 +99,12 @@ app.get('/home', (req, res) => {
         <h1>Click and open the PDF in pdfanno.</h1>
         <ul>
             <li>
-                <a href="http://pdfanno.deepscholar.local:8080/dist/?pdf=http://deepscholar.local:4000/pdf/bitcoin.pdf">
+                <a href="http://pdfanno.deepscholar.local:8080/dist/?pdf=http://deepscholar.local:4000/pdf/bitcoin.pdf&jwt=on">
                     bitcoin.pdf
                 </a>
             </li>
             <li>
-                <a href="http://pdfanno.deepscholar.local:8080/dist/?pdf=http://deepscholar.local:4000/pdf/P12-1046.pdf">
+                <a href="http://pdfanno.deepscholar.local:8080/dist/?pdf=http://deepscholar.local:4000/pdf/P12-1046.pdf&jwt=on">
                     P12-1046.pdf
                 </a>
             </li>
